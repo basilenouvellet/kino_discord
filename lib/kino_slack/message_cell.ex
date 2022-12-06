@@ -8,9 +8,9 @@ defmodule KinoSlack.MessageCell do
   @impl true
   def init(attrs, ctx) do
     fields = %{
-      "token_secret_name" => attrs["fields"]["token_secret_name"] || "",
-      "channel" => attrs["fields"]["channel"] || "",
-      "message" => attrs["fields"]["message"] || ""
+      "token_secret_name" => attrs["token_secret_name"] || "",
+      "channel" => attrs["channel"] || "",
+      "message" => attrs["message"] || ""
     }
 
     ctx = assign(ctx, fields: fields)
@@ -43,30 +43,27 @@ defmodule KinoSlack.MessageCell do
 
   @impl true
   def to_attrs(ctx) do
-    %{
-      "fields" => ctx.assigns.fields
-    }
+    ctx.assigns.fields
   end
 
   @impl true
   def to_source(attrs) do
-    if any_field_empty?(attrs) do
-      ""
-    else
+    required_fields = ~w(token_secret_name channel message)
+
+    if all_fields_filled?(attrs, required_fields) do
       quote do
         req =
           Req.new(
             base_url: "https://slack.com/api",
-            auth:
-              {:bearer, System.fetch_env!(unquote("LB_#{attrs["fields"]["token_secret_name"]}"))}
+            auth: {:bearer, System.fetch_env!(unquote("LB_#{attrs["token_secret_name"]}"))}
           )
 
         response =
           Req.post!(req,
             url: "/chat.postMessage",
             json: %{
-              channel: unquote(attrs["fields"]["channel"]),
-              text: unquote(attrs["fields"]["message"])
+              channel: unquote(attrs["channel"]),
+              text: unquote(attrs["message"])
             }
           )
 
@@ -76,11 +73,12 @@ defmodule KinoSlack.MessageCell do
         end
       end
       |> Kino.SmartCell.quoted_to_string()
+    else
+      ""
     end
   end
 
-  defp any_field_empty?(attrs) do
-    keys = Map.keys(attrs["fields"])
-    Enum.any?(keys, fn key -> attrs["fields"][key] in [nil, ""] end)
+  def all_fields_filled?(attrs, keys) do
+    Enum.all?(keys, fn key -> attrs[key] not in [nil, ""] end)
   end
 end

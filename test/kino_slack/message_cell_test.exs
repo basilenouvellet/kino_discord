@@ -17,11 +17,9 @@ defmodule KinoSlack.MessageCellTest do
     assert_smart_cell_update(
       kino,
       %{
-        "fields" => %{
-          "token_secret_name" => "SLACK_TOKEN",
-          "channel" => "#slack-channel",
-          "message" => "slack message"
-        }
+        "token_secret_name" => "SLACK_TOKEN",
+        "channel" => "#slack-channel",
+        "message" => "slack message"
       },
       generated_code
     )
@@ -52,11 +50,9 @@ defmodule KinoSlack.MessageCellTest do
 
   test "generates source code from stored attributes" do
     stored_attrs = %{
-      "fields" => %{
-        "token_secret_name" => "SLACK_TOKEN",
-        "channel" => "#slack-channel",
-        "message" => "slack message"
-      }
+      "token_secret_name" => "SLACK_TOKEN",
+      "channel" => "#slack-channel",
+      "message" => "slack message"
     }
 
     {_kino, source} = start_smart_cell!(MessageCell, stored_attrs)
@@ -87,20 +83,18 @@ defmodule KinoSlack.MessageCellTest do
 
   test "when any required field is empty, returns empty source code" do
     required_attrs = %{
-      "fields" => %{
-        "token_secret_name" => "SLACK_TOKEN",
-        "channel" => "#slack-channel",
-        "message" => "slack message"
-      }
+      "token_secret_name" => "SLACK_TOKEN",
+      "channel" => "#slack-channel",
+      "message" => "slack message"
     }
 
-    attrs_missing_required = put_in(required_attrs["fields"]["token_secret_name"], "")
+    attrs_missing_required = put_in(required_attrs["token_secret_name"], "")
     assert MessageCell.to_source(attrs_missing_required) == ""
 
-    attrs_missing_required = put_in(required_attrs["fields"]["channel"], "")
+    attrs_missing_required = put_in(required_attrs["channel"], "")
     assert MessageCell.to_source(attrs_missing_required) == ""
 
-    attrs_missing_required = put_in(required_attrs["fields"]["message"], "")
+    attrs_missing_required = put_in(required_attrs["message"], "")
     assert MessageCell.to_source(attrs_missing_required) == ""
   end
 
