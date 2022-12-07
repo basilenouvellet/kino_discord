@@ -23,7 +23,7 @@ defmodule KinoSlack.MixProject do
   defp deps do
     [
       {:kino, "~> 0.7"},
-      {:req, "~> 0.3.2"}
+      {:req, "~> 0.3"}
     ]
   end
 end
