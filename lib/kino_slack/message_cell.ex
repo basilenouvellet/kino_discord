@@ -3,7 +3,7 @@ defmodule KinoSlack.MessageCell do
 
   use Kino.JS, assets_path: "lib/assets"
   use Kino.JS.Live
-  use Kino.SmartCell, name: "Slack"
+  use Kino.SmartCell, name: "Slack message"
 
   @impl true
   def init(attrs, ctx) do
