@@ -18,6 +18,25 @@ Mix.install([
 ])
 ```
 
+## Get started
+
+- Create Discord app ([see doc](https://discord.com/developers/docs/getting-started#creating-an-app))
+
+- Create a bot for your app ([see doc](https://discord.com/developers/docs/getting-started#configuring-a-bot)) & copy the **bot token**
+
+- Generate an installation URL ([see doc](https://discord.com/developers/docs/getting-started#adding-scopes-and-permissions)) with:
+
+  - scopes: `bot`
+  - permissions: `Send Messages`
+
+- Install the bot on your Discord server by visiting the installation URL
+
+- Copy the **channel id** of your Discord channel (i.e. the last part of the channel URL)
+
+  > Discord channel URLs have this shape: `https://discord.com/channels/[GUILD_ID]/[CHANNEL_ID]`
+
+- Create a "Discord message" smart cell in your Livebook and fill in the channel id & bot token
+
 ## License
 
 Copyright (C) 2023 Basile Nouvellet
