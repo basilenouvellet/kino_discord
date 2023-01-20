@@ -11,7 +11,7 @@ defmodule KinoDiscord.MessageCell do
   def init(attrs, ctx) do
     fields = %{
       "token_secret_name" => attrs["token_secret_name"] || "",
-      "channel" => attrs["channel"] || "",
+      "channel_id" => attrs["channel_id"] || "",
       "message" => attrs["message"] || ""
     }
 
@@ -24,8 +24,8 @@ defmodule KinoDiscord.MessageCell do
   end
 
   @impl true
-  def handle_event("update_channel", value, ctx) do
-    ctx = update(ctx, :fields, &Map.merge(&1, %{"channel" => value}))
+  def handle_event("update_channel_id", value, ctx) do
+    ctx = update(ctx, :fields, &Map.merge(&1, %{"channel_id" => value}))
     {:noreply, ctx}
   end
 
@@ -49,28 +49,35 @@ defmodule KinoDiscord.MessageCell do
 
   @impl true
   def to_source(attrs) do
-    required_fields = ~w(token_secret_name channel message)
+    required_fields = ~w(token_secret_name channel_id message)
 
     if Helpers.all_fields_filled?(attrs, required_fields) do
       quote do
         req =
           Req.new(
             base_url: "https://discord.com/api",
-            auth: {:bearer, System.fetch_env!(unquote("LB_#{attrs["token_secret_name"]}"))}
+            headers: [
+              {"Authorization",
+               "Bot #{System.fetch_env!(unquote("LB_#{attrs["token_secret_name"]}"))}"}
+            ]
           )
 
-        response =
-          Req.post!(req,
-            url: "/chat.postMessage",
-            json: %{
-              channel: unquote(attrs["channel"]),
-              text: unquote(attrs["message"])
-            }
-          )
+        case Req.post!(req,
+               url: unquote("/channels/#{attrs["channel_id"]}/messages"),
+               json: %{content: unquote(attrs["message"])}
+             ) do
+          %Req.Response{status: 200} ->
+            :ok
 
-        case response.body do
-          %{"ok" => true} -> :ok
-          %{"ok" => false, "error" => error} -> {:error, error}
+          %Req.Response{status: 400, body: %{"message" => reason}} ->
+            {:error, reason}
+
+          %Req.Response{status: status, body: "\n<html>" <> _ = body} ->
+            "```html#{body}```" |> Kino.Markdown.new() |> Kino.render()
+            {:error, %{status: status, body: body}}
+
+          %Req.Response{status: status, body: body} ->
+            {:error, %{status: status, body: body}}
         end
       end
       |> Kino.SmartCell.quoted_to_string()

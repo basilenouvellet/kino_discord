@@ -10,15 +10,15 @@ defmodule KinoDiscord.MessageCellTest do
   test "when required fields are filled in, generates source code" do
     {kino, _source} = start_smart_cell!(MessageCell, %{})
 
-    push_event(kino, "update_token_secret_name", "DISCORD_TOKEN")
-    push_event(kino, "update_channel", "#discord-channel")
+    push_event(kino, "update_token_secret_name", "DISCORD_BOT_TOKEN")
+    push_event(kino, "update_channel_id", "123456")
     push_event(kino, "update_message", "discord message")
 
     assert_smart_cell_update(
       kino,
       %{
-        "token_secret_name" => "DISCORD_TOKEN",
-        "channel" => "#discord-channel",
+        "token_secret_name" => "DISCORD_BOT_TOKEN",
+        "channel_id" => "123456",
         "message" => "discord message"
       },
       generated_code
@@ -28,18 +28,22 @@ defmodule KinoDiscord.MessageCellTest do
     req =
       Req.new(
         base_url: "https://discord.com/api",
-        auth: {:bearer, System.fetch_env!("LB_DISCORD_TOKEN")}
+        headers: [{"Authorization", "Bot #{System.fetch_env!("LB_DISCORD_BOT_TOKEN")}"}]
       )
 
-    response =
-      Req.post!(req,
-        url: "/chat.postMessage",
-        json: %{channel: "#discord-channel", text: "discord message"}
-      )
+    case Req.post!(req, url: "/channels/123456/messages", json: %{content: "discord message"}) do
+      %Req.Response{status: 200} ->
+        :ok
 
-    case response.body do
-      %{"ok" => true} -> :ok
-      %{"ok" => false, "error" => error} -> {:error, error}
+      %Req.Response{status: 400, body: %{"message" => reason}} ->
+        {:error, reason}
+
+      %Req.Response{status: status, body: "\n<html>" <> _ = body} ->
+        "```html#{body}```" |> Kino.Markdown.new() |> Kino.render()
+        {:error, %{status: status, body: body}}
+
+      %Req.Response{status: status, body: body} ->
+        {:error, %{status: status, body: body}}
     end
     """
 
@@ -50,8 +54,8 @@ defmodule KinoDiscord.MessageCellTest do
 
   test "generates source code from stored attributes" do
     stored_attrs = %{
-      "token_secret_name" => "DISCORD_TOKEN",
-      "channel" => "#discord-channel",
+      "token_secret_name" => "DISCORD_BOT_TOKEN",
+      "channel_id" => "123456",
       "message" => "discord message"
     }
 
@@ -61,18 +65,22 @@ defmodule KinoDiscord.MessageCellTest do
     req =
       Req.new(
         base_url: "https://discord.com/api",
-        auth: {:bearer, System.fetch_env!("LB_DISCORD_TOKEN")}
+        headers: [{"Authorization", "Bot #{System.fetch_env!("LB_DISCORD_BOT_TOKEN")}"}]
       )
 
-    response =
-      Req.post!(req,
-        url: "/chat.postMessage",
-        json: %{channel: "#discord-channel", text: "discord message"}
-      )
+    case Req.post!(req, url: "/channels/123456/messages", json: %{content: "discord message"}) do
+      %Req.Response{status: 200} ->
+        :ok
 
-    case response.body do
-      %{"ok" => true} -> :ok
-      %{"ok" => false, "error" => error} -> {:error, error}
+      %Req.Response{status: 400, body: %{"message" => reason}} ->
+        {:error, reason}
+
+      %Req.Response{status: status, body: "\n<html>" <> _ = body} ->
+        "```html#{body}```" |> Kino.Markdown.new() |> Kino.render()
+        {:error, %{status: status, body: body}}
+
+      %Req.Response{status: status, body: body} ->
+        {:error, %{status: status, body: body}}
     end
     """
 
@@ -83,15 +91,15 @@ defmodule KinoDiscord.MessageCellTest do
 
   test "when any required field is empty, returns empty source code" do
     required_attrs = %{
-      "token_secret_name" => "DISCORD_TOKEN",
-      "channel" => "#discord-channel",
+      "token_secret_name" => "DISCORD_BOT_TOKEN",
+      "channel_id" => "123456",
       "message" => "discord message"
     }
 
     attrs_missing_required = put_in(required_attrs["token_secret_name"], "")
     assert MessageCell.to_source(attrs_missing_required) == ""
 
-    attrs_missing_required = put_in(required_attrs["channel"], "")
+    attrs_missing_required = put_in(required_attrs["channel_id"], "")
     assert MessageCell.to_source(attrs_missing_required) == ""
 
     attrs_missing_required = put_in(required_attrs["message"], "")
@@ -101,8 +109,8 @@ defmodule KinoDiscord.MessageCellTest do
   test "when discord token secret field changes, broadcasts secret name back to client" do
     {kino, _source} = start_smart_cell!(MessageCell, %{})
 
-    push_event(kino, "update_token_secret_name", "DISCORD_TOKEN")
+    push_event(kino, "update_token_secret_name", "DISCORD_BOT_TOKEN")
 
-    assert_broadcast_event(kino, "update_token_secret_name", "DISCORD_TOKEN")
+    assert_broadcast_event(kino, "update_token_secret_name", "DISCORD_BOT_TOKEN")
   end
 end
