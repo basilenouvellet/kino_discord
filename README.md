@@ -1,18 +1,18 @@
-# KinoSlack
+# KinoDiscord
 
-[![Docs](https://img.shields.io/badge/hex.pm-docs-8e7ce6.svg)](https://hexdocs.pm/kino_slack)
-[![Actions Status](https://github.com/livebook-dev/kino_slack/workflows/Test/badge.svg)](https://github.com/livebook-dev/kino_slack/actions)
+[![Docs](https://img.shields.io/badge/hex.pm-docs-8e7ce6.svg)](https://hexdocs.pm/kino_discord)
+[![Actions Status](https://github.com/basilenouvellet/kino_discord/workflows/Test/badge.svg)](https://github.com/basilenouvellet/kino_discord/actions)
 
-Slack integration with [Kino](https://github.com/livebook-dev/kino)
+Discord integration with [Kino](https://github.com/livebook-dev/kino)
 for [Livebook](https://github.com/livebook-dev/livebook).
 
 ## Installation
 
-To bring KinoSlack to Livebook all you need to do is `Mix.install/2`:
+To bring KinoDiscord to Livebook all you need to do is `Mix.install/2`:
 
 ```elixir
 Mix.install([
-  {:kino_slack, "~> 0.1.0"}
+  {:kino_discord, "~> 0.1.0"}
 ])
 ```
 

@@ -1,9 +1,9 @@
-defmodule KinoSlack.MessageCell do
+defmodule KinoDiscord.MessageCell do
   @moduledoc false
 
   use Kino.JS, assets_path: "lib/assets"
   use Kino.JS.Live
-  use Kino.SmartCell, name: "Slack message"
+  use Kino.SmartCell, name: "Discord message"
 
   @impl true
   def init(attrs, ctx) do
@@ -54,7 +54,7 @@ defmodule KinoSlack.MessageCell do
       quote do
         req =
           Req.new(
-            base_url: "https://slack.com/api",
+            base_url: "https://discord.com/api",
             auth: {:bearer, System.fetch_env!(unquote("LB_#{attrs["token_secret_name"]}"))}
           )
 

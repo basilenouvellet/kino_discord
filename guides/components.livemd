@@ -2,7 +2,7 @@
 
 ```elixir
 Mix.install([
-  {:kino_slack, "~> 0.1.0"},
+  {:kino_discord, "~> 0.1.0"},
   {:req, "~> 0.3.0"}
 ])
 ```
@@ -11,4 +11,4 @@ Mix.install([
 
 The following Smart cells are available:
 
-* **Slack message** - for sending a message to a Slack channel
+- **Discord message** - for sending a message to a Discord channel

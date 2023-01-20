@@ -1,25 +1,25 @@
-defmodule KinoSlack.MessageCellTest do
+defmodule KinoDiscord.MessageCellTest do
   use ExUnit.Case
 
   import Kino.Test
 
-  alias KinoSlack.MessageCell
+  alias KinoDiscord.MessageCell
 
   setup :configure_livebook_bridge
 
   test "when required fields are filled in, generates source code" do
     {kino, _source} = start_smart_cell!(MessageCell, %{})
 
-    push_event(kino, "update_token_secret_name", "SLACK_TOKEN")
-    push_event(kino, "update_channel", "#slack-channel")
-    push_event(kino, "update_message", "slack message")
+    push_event(kino, "update_token_secret_name", "DISCORD_TOKEN")
+    push_event(kino, "update_channel", "#discord-channel")
+    push_event(kino, "update_message", "discord message")
 
     assert_smart_cell_update(
       kino,
       %{
-        "token_secret_name" => "SLACK_TOKEN",
-        "channel" => "#slack-channel",
-        "message" => "slack message"
+        "token_secret_name" => "DISCORD_TOKEN",
+        "channel" => "#discord-channel",
+        "message" => "discord message"
       },
       generated_code
     )
@@ -27,14 +27,14 @@ defmodule KinoSlack.MessageCellTest do
     expected_code = ~S"""
     req =
       Req.new(
-        base_url: "https://slack.com/api",
-        auth: {:bearer, System.fetch_env!("LB_SLACK_TOKEN")}
+        base_url: "https://discord.com/api",
+        auth: {:bearer, System.fetch_env!("LB_DISCORD_TOKEN")}
       )
 
     response =
       Req.post!(req,
         url: "/chat.postMessage",
-        json: %{channel: "#slack-channel", text: "slack message"}
+        json: %{channel: "#discord-channel", text: "discord message"}
       )
 
     case response.body do
@@ -50,9 +50,9 @@ defmodule KinoSlack.MessageCellTest do
 
   test "generates source code from stored attributes" do
     stored_attrs = %{
-      "token_secret_name" => "SLACK_TOKEN",
-      "channel" => "#slack-channel",
-      "message" => "slack message"
+      "token_secret_name" => "DISCORD_TOKEN",
+      "channel" => "#discord-channel",
+      "message" => "discord message"
     }
 
     {_kino, source} = start_smart_cell!(MessageCell, stored_attrs)
@@ -60,14 +60,14 @@ defmodule KinoSlack.MessageCellTest do
     expected_source = ~S"""
     req =
       Req.new(
-        base_url: "https://slack.com/api",
-        auth: {:bearer, System.fetch_env!("LB_SLACK_TOKEN")}
+        base_url: "https://discord.com/api",
+        auth: {:bearer, System.fetch_env!("LB_DISCORD_TOKEN")}
       )
 
     response =
       Req.post!(req,
         url: "/chat.postMessage",
-        json: %{channel: "#slack-channel", text: "slack message"}
+        json: %{channel: "#discord-channel", text: "discord message"}
       )
 
     case response.body do
@@ -83,9 +83,9 @@ defmodule KinoSlack.MessageCellTest do
 
   test "when any required field is empty, returns empty source code" do
     required_attrs = %{
-      "token_secret_name" => "SLACK_TOKEN",
-      "channel" => "#slack-channel",
-      "message" => "slack message"
+      "token_secret_name" => "DISCORD_TOKEN",
+      "channel" => "#discord-channel",
+      "message" => "discord message"
     }
 
     attrs_missing_required = put_in(required_attrs["token_secret_name"], "")
@@ -98,11 +98,11 @@ defmodule KinoSlack.MessageCellTest do
     assert MessageCell.to_source(attrs_missing_required) == ""
   end
 
-  test "when slack token secret field changes, broadcasts secret name back to client" do
+  test "when discord token secret field changes, broadcasts secret name back to client" do
     {kino, _source} = start_smart_cell!(MessageCell, %{})
 
-    push_event(kino, "update_token_secret_name", "SLACK_TOKEN")
+    push_event(kino, "update_token_secret_name", "DISCORD_TOKEN")
 
-    assert_broadcast_event(kino, "update_token_secret_name", "SLACK_TOKEN")
+    assert_broadcast_event(kino, "update_token_secret_name", "DISCORD_TOKEN")
   end
 end
