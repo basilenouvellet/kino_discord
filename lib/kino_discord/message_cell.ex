@@ -69,14 +69,13 @@ defmodule KinoDiscord.MessageCell do
           %Req.Response{status: 200} ->
             :ok
 
-          %Req.Response{status: 400, body: %{"message" => reason}} ->
-            {:error, reason}
-
-          %Req.Response{status: status, body: "\n<html>" <> _ = body} ->
-            "```html#{body}```" |> Kino.Markdown.new() |> Kino.render()
-            {:error, %{status: status, body: body}}
-
           %Req.Response{status: status, body: body} ->
+            # To help with HTML errors readability
+            case body do
+              "\n<html>" <> _ -> Kino.Markdown.new("```html#{body}```") |> Kino.render()
+              _ -> nil
+            end
+
             {:error, %{status: status, body: body}}
         end
       end
