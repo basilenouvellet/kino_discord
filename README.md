@@ -6,6 +6,8 @@
 Discord integration with [Kino](https://github.com/livebook-dev/kino)
 for [Livebook](https://github.com/livebook-dev/livebook).
 
+This project is heavily inspired from [:kino_slack](https://github.com/livebook-dev/kino_slack).
+
 ## Installation
 
 To bring KinoDiscord to Livebook all you need to do is `Mix.install/2`:
@@ -18,7 +20,7 @@ Mix.install([
 
 ## License
 
-Copyright (C) 2022 Dashbit
+Copyright (C) 2023 Basile Nouvellet
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
