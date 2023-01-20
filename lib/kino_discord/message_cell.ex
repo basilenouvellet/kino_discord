@@ -5,6 +5,8 @@ defmodule KinoDiscord.MessageCell do
   use Kino.JS.Live
   use Kino.SmartCell, name: "Discord message"
 
+  alias KinoDiscord.Helpers
+
   @impl true
   def init(attrs, ctx) do
     fields = %{
@@ -13,8 +15,7 @@ defmodule KinoDiscord.MessageCell do
       "message" => attrs["message"] || ""
     }
 
-    ctx = assign(ctx, fields: fields)
-    {:ok, ctx}
+    {:ok, assign(ctx, fields: fields)}
   end
 
   @impl true
@@ -50,7 +51,7 @@ defmodule KinoDiscord.MessageCell do
   def to_source(attrs) do
     required_fields = ~w(token_secret_name channel message)
 
-    if all_fields_filled?(attrs, required_fields) do
+    if Helpers.all_fields_filled?(attrs, required_fields) do
       quote do
         req =
           Req.new(
@@ -76,9 +77,5 @@ defmodule KinoDiscord.MessageCell do
     else
       ""
     end
-  end
-
-  def all_fields_filled?(attrs, keys) do
-    Enum.all?(keys, fn key -> attrs[key] not in [nil, ""] end)
   end
 end
